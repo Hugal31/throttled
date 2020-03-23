@@ -17,6 +17,7 @@ from multiprocessing import cpu_count
 from platform import uname
 from threading import Event, Thread
 from time import time
+from time import sleep
 
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
@@ -829,18 +830,23 @@ def main():
         path="/org/freedesktop/UPower/devices/line_power_AC",
     )
 
-    log('[I] Starting main loop.')
-
     if args.monitor is not None:
         monitor_thread = Thread(target=monitor, args=(exit_event, args.monitor))
         monitor_thread.daemon = True
         monitor_thread.start()
 
-    try:
-        loop = GLib.MainLoop()
-        loop.run()
-    except (KeyboardInterrupt, SystemExit):
-        pass
+        try:
+            while True:
+                sleep(10)
+        except (KeyboardInterrupt, SystemExit):
+            pass
+    else:
+        log('[I] Starting main loop.')
+        try:
+            loop = GLib.MainLoop()
+            loop.run()
+        except (KeyboardInterrupt, SystemExit):
+            pass
 
     exit_event.set()
     loop.quit()
